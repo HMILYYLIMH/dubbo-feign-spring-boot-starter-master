@@ -10,7 +10,7 @@ import com.hmily.cloud.dubbo.feign.samples.consumer.integration.bean.QueryOrderR
 /**
  * <h1>样例类。</h1>
  *
- * @author HEHUI231
+ * @author hmilyylimh
  * ^_^
  * @version 0.0.1
  * ^_^

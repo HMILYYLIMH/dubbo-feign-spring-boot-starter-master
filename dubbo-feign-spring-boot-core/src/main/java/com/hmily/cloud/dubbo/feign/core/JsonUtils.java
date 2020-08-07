@@ -8,7 +8,7 @@ import java.util.Collection;
 /**
  * <h1>Json工具类。</h1>
  *
- * @author HEHUI231
+ * @author hmilyylimh
  * ^_^
  * @version 0.0.1
  * ^_^
