@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.hmily.cloud</groupId>
+    <artifactId>dubbo-feign-parent</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.2.RELEASE</version>
+    </parent>
+
+    <properties>
+        <project.dubbo-feign.version>1.0-SNAPSHOT</project.dubbo-feign.version>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <java.version>1.8</java.version>
+
+        <spring-boot.version>1.5.2.RELEASE</spring-boot.version>
+        <com.alibaba.dubbo.version>2.6.5</com.alibaba.dubbo.version>
+        <com.alibaba.fastjson.version>1.2.67</com.alibaba.fastjson.version>
+        <com.google.code.gson.version>2.8.6</com.google.code.gson.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- project libs -->
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-core</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-autoconfigure</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-starter</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-samples-provider</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-samples-consumer</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.hmily.cloud</groupId>
+                <artifactId>dubbo-feign-spring-boot-samples-api</artifactId>
+                <version>${project.dubbo-feign.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-aop</artifactId>
+                <version>${spring-boot.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework.boot</groupId>
+                        <artifactId>spring-boot-starter-logging</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+<!--            <dependency>-->
+<!--                <groupId>org.springframework</groupId>-->
+<!--                <artifactId>spring-context</artifactId>-->
+<!--                <version>4.3.26.RELEASE</version>-->
+<!--            </dependency>-->
+
+
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>dubbo</artifactId>
+                <version>${com.alibaba.dubbo.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>commons-logging</groupId>
+                        <artifactId>commons-logging</artifactId>
+                    </exclusion>
+                    <exclusion>
+                        <groupId>org.springframework</groupId>
+                        <artifactId>spring-context</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${com.alibaba.fastjson.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.code.gson</groupId>
+                <artifactId>gson</artifactId>
+                <version>${com.google.code.gson.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.2</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.5</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar-no-fork</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <attach>true</attach>
+                </configuration>
+            </plugin>
+
+<!--            <plugin>-->
+<!--                <groupId>org.codehaus.mojo</groupId>-->
+<!--                <artifactId>flatten-maven-plugin</artifactId>-->
+<!--                <version>1.1.0</version>-->
+<!--                <configuration>-->
+<!--                    <pomElements>-->
+<!--                        <repositories>flatten</repositories>-->
+<!--                    </pomElements>-->
+<!--                </configuration>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>flatten</id>-->
+<!--                        <phase>process-resources</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>flatten</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                    <execution>-->
+<!--                        <id>flatten.clean</id>-->
+<!--                        <phase>clean</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>clean</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--            </plugin>-->
+        </plugins>
+    </build>
+
+    <modules>
+        <module>dubbo-feign-spring-boot-core</module>
+        <module>dubbo-feign-spring-boot-autoconfigure</module>
+        <module>dubbo-feign-spring-boot-starter</module>
+        <module>dubbo-feign-spring-boot-samples</module>
+        <module>dubbo-feign-spring-boot-samples/dubbo-feign-spring-boot-samples-consumer</module>
+        <module>dubbo-feign-spring-boot-samples/dubbo-feign-spring-boot-samples-provider</module>
+        <module>dubbo-feign-spring-boot-samples/dubbo-feign-spring-boot-samples-api</module>
+    </modules>
+</project>
