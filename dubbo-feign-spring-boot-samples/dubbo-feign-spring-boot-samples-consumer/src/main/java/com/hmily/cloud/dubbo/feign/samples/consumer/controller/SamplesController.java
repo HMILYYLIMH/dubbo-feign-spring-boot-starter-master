@@ -34,7 +34,7 @@ public class SamplesController {
 
             orderInfoBean.setOrderAmt(new BigDecimal("1000000"));
             orderInfoBean.setOrderId("HH20200101");
-            orderInfoBean.setOrderName("hehui231");
+            orderInfoBean.setOrderName("hmilyylimh");
 
             return samplesFacadeClient.queryRemoteOrder(reqBean).toString();
         } catch (Exception e) {
@@ -52,7 +52,7 @@ public class SamplesController {
 
             orderInfoBean.setOrderAmt(new BigDecimal("1000000"));
             orderInfoBean.setOrderId("HH20200101");
-            orderInfoBean.setOrderName("hehui231");
+            orderInfoBean.setOrderName("hmilyylimh");
 
             System.out.println(samplesFacadeClient.queryRemoteOrder(reqBean).toString());
         } catch (Exception e) {
