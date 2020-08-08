@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * <h1>DubboFeign 代理类。</h1>
+ * <h1>DubboClient 代理类。</h1>
  *
  * @author hmilyylimh
  * ^_^
