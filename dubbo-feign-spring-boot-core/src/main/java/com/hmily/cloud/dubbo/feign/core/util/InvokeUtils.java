@@ -1,6 +1,5 @@
 package com.hmily.cloud.dubbo.feign.core.util;
 
-import com.alibaba.dubbo.rpc.proxy.InvokerInvocationHandler;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.util.ReflectionUtils;
@@ -33,23 +32,18 @@ public class InvokeUtils {
      * @throws Throwable
      */
     public static Object invoke(Object proxy, Method remoteMethod, Object[] args) throws Throwable {
-        Field h = null;
         Object handler = null;
         Object result = null;
         if (DubboUtils.isDubboProxyName(proxy)) {
-            h = proxy.getClass().getDeclaredField("handler");
-            handler = getHandler(proxy, h);
-            result = ((InvokerInvocationHandler) handler).invoke(proxy, remoteMethod, args);
+            handler = getHandler(proxy, proxy.getClass().getDeclaredField("handler"));
+            result = ((com.alibaba.dubbo.rpc.proxy.InvokerInvocationHandler) handler).invoke(proxy, remoteMethod, args);
         } else if (AopUtils.isJdkDynamicProxy(proxy)) {
-            h = proxy.getClass().getSuperclass().getDeclaredField("h");
-            handler = getHandler(proxy, h);
+            handler = getHandler(proxy, proxy.getClass().getSuperclass().getDeclaredField("h"));
             result = ((java.lang.reflect.InvocationHandler) handler).invoke(proxy, remoteMethod, args);
         } else {
-            h = proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0");
-            handler = getHandler(proxy, h);
+            handler = getHandler(proxy, proxy.getClass().getDeclaredField("CGLIB$CALLBACK_0"));
             MethodProxy methodProxy = findMethodProxy(proxy, remoteMethod.getName());
-            result = ((org.springframework.cglib.proxy.MethodInterceptor) handler).intercept(proxy, remoteMethod,
-                    args, methodProxy);
+            result = ((org.springframework.cglib.proxy.MethodInterceptor) handler).intercept(proxy, remoteMethod, args, methodProxy);
         }
 
         return result;
