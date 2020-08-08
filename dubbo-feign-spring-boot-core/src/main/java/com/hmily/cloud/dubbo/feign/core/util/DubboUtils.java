@@ -15,11 +15,11 @@ public class DubboUtils {
     private static final String ALIBABA_DUBBO_PROXY_PREFIX = "com.alibaba.dubbo.common.bytecode.proxy0";
     private static final String APACHE_DUBBO_PROXY_PREFIX = "org.apache.dubbo.common.bytecode.proxy";
 
-    public static boolean isDubboProxyName(String name) {
+    public static boolean isDubboProxy(String name) {
         return name.startsWith(ALIBABA_DUBBO_PROXY_PREFIX) || name.startsWith(APACHE_DUBBO_PROXY_PREFIX);
     }
 
-    public static boolean isDubboProxyName(Object proxy) {
-        return isDubboProxyName(proxy.getClass().getName());
+    public static boolean isDubboProxy(Object proxy) {
+        return isDubboProxy(proxy.getClass().getName());
     }
 }

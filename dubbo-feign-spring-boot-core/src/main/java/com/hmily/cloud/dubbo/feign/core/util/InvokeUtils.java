@@ -34,7 +34,7 @@ public class InvokeUtils {
     public static Object invoke(Object proxy, Method remoteMethod, Object[] args) throws Throwable {
         Object handler = null;
         Object result = null;
-        if (DubboUtils.isDubboProxyName(proxy)) {
+        if (DubboUtils.isDubboProxy(proxy)) {
             handler = getHandler(proxy, proxy.getClass().getDeclaredField("handler"));
             result = ((com.alibaba.dubbo.rpc.proxy.InvokerInvocationHandler) handler).invoke(proxy, remoteMethod, args);
         } else if (AopUtils.isJdkDynamicProxy(proxy)) {
