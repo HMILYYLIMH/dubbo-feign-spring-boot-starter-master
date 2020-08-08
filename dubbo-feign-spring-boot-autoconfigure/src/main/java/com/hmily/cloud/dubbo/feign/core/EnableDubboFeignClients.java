@@ -5,7 +5,7 @@ import org.springframework.context.annotation.Import;
 import java.lang.annotation.*;
 
 /**
- * 请输入一句美丽的描述话语
+ * <h1>启用 DubboFeign 注解类。</h1>
  *
  * @author hmilyylimh
  * ^_^

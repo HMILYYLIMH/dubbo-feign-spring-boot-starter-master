@@ -13,7 +13,7 @@ import org.springframework.core.type.AnnotationMetadata;
 import java.util.Set;
 
 /**
- * 请输入一句美丽的描述话语
+ * <h1>DubboFeign 扫描器。</h1>
  *
  * @author hmilyylimh
  * ^_^

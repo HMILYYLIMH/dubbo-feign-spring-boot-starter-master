@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 请输入一句美丽的描述话语
+ * <h1>DubboFeign 注册器。</h1>
  *
  * @author hmilyylimh
  * ^_^

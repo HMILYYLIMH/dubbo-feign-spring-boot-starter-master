@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationContextAware;
 import java.lang.reflect.Proxy;
 
 /**
- * 请输入一句美丽的描述话语
+ * <h1>DubboClient 工厂Bean。</h1>
  *
  * @author hmilyylimh
  * ^_^

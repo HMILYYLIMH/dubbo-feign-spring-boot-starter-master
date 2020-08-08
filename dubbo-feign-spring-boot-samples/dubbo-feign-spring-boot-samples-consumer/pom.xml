@@ -10,7 +10,7 @@
         <version>2.1.8.RELEASE</version>
     </parent>
 
-    <groupId>com.hmily.cloud</groupId>
+    <groupId>com.hmilyylimh.cloud</groupId>
     <artifactId>dubbo-feign-spring-boot-samples-consumer</artifactId>
     <name>dubbo-feign-spring-boot-samples-consumer</name>
     <version>1.0-SNAPSHOT</version>
@@ -18,7 +18,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>com.hmily.cloud</groupId>
+            <groupId>com.hmilyylimh.cloud</groupId>
             <artifactId>dubbo-feign-spring-boot-samples-api</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
@@ -100,7 +100,7 @@
         </dependency>
 
         <dependency>
-            <groupId>com.hmily.cloud</groupId>
+            <groupId>com.hmilyylimh.cloud</groupId>
             <artifactId>dubbo-feign-spring-boot-starter</artifactId>
             <version>1.0-SNAPSHOT</version>
             <exclusions>

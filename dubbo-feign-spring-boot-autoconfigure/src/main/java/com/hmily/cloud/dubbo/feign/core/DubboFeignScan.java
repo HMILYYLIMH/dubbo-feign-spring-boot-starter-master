@@ -1,11 +1,9 @@
 package com.hmily.cloud.dubbo.feign.core;
 
-import org.springframework.context.annotation.Import;
-
 import java.lang.annotation.*;
 
 /**
- * 请输入一句美丽的描述话语
+ * <h1>DubboFeign 扫描注解类。</h1>
  *
  * @author hmilyylimh
  * ^_^

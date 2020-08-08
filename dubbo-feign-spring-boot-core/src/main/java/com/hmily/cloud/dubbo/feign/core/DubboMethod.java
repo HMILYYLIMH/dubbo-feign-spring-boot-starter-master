@@ -3,7 +3,7 @@ package com.hmily.cloud.dubbo.feign.core;
 import java.lang.annotation.*;
 
 /**
- * <h1>Dubbo 方法注解。</h1><br/>
+ * <h1>Dubbo 方法注解类。</h1><br/>
  *
  * @author hmilyylimh
  * ^_^
