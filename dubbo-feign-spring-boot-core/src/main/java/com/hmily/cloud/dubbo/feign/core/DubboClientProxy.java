@@ -5,8 +5,8 @@ import com.alibaba.dubbo.config.ApplicationConfig;
 import com.alibaba.dubbo.config.MethodConfig;
 import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
+import com.alibaba.dubbo.config.utils.ReferenceConfigCache;
 import com.alibaba.dubbo.rpc.service.GenericService;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
@@ -60,7 +60,7 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         Class<?> returnType = method.getReturnType();
 
         // 发起真正远程调用
-        Object resultObject = doInvoke(remoteClass, remoteMethod, args);
+        Object resultObject = doInvoke(remoteClass, remoteMethod, args, methodAnno);
         if (CharSequence.class.isAssignableFrom(returnType)) {
             return (String) resultObject;
         } else if (Collection.class.isAssignableFrom(returnType)) {
@@ -121,7 +121,8 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
                 return METHOD_CACHE.computeIfAbsent(key, k -> foundMethod);
             }
 
-            throw new RuntimeException("remoteMethodParamsTypeName 与 remoteMethodParamsTypeClass 只能赋值其中一个！！！");
+            throw new DubboMethodException("One must be choosed in 'remoteMethodParamsTypeName' and " +
+                    "'remoteMethodParamsTypeClass'.");
         }
     }
 
@@ -154,7 +155,7 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
                 .unreflectSpecial(method, declaringClass).bindTo(proxy).invokeWithArguments(args);
     }
 
-    private Object doInvoke(Class<?> remoteClass, Method remoteMethod, Object[] args) throws InvocationTargetException, IllegalAccessException {
+    private Object doInvoke(Class<?> remoteClass, Method remoteMethod, Object[] args, DubboMethod methodAnno) throws InvocationTargetException, IllegalAccessException {
         Object remoteBean = getBean(remoteClass);
 
         Class<?>[] parameterTypes = remoteMethod.getParameterTypes();
@@ -175,23 +176,31 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
             return remoteMethod.invoke(remoteBean, parameterValueList);
         }
 
-        GenericService genericService = getGenericService(remoteMethod);
+        // RPC 远程调用
+        GenericService genericService = getGenericService(remoteMethod, methodAnno);
         return genericService.$invoke(remoteMethod.getName(), parameterTypeList, parameterValueList);
     }
 
-    private GenericService getGenericService(Method remoteMethod) {
+    private GenericService getGenericService(Method remoteMethod, DubboMethod methodAnno) {
         Class<?> declaringClass = remoteMethod.getDeclaringClass();
 
-        // TODO 返回服务缓存处理
         ReferenceConfig<GenericService> referenceConfig = new ReferenceConfig();
         referenceConfig.setRegistry(getRegistry());
         referenceConfig.setApplication(getApplication());
         referenceConfig.setInterface(declaringClass.getName());
         referenceConfig.setGeneric(true);
         referenceConfig.setCheck(false);
+        referenceConfig.setMethods(getMethodConfigList(remoteMethod, methodAnno));
 
-        referenceConfig.setMethods(getMethodConfigList(remoteMethod));
-        return referenceConfig.get();
+        // 服务缓存处理
+        ReferenceConfigCache cache = ReferenceConfigCache.getCache();
+        GenericService genericService = cache.get(referenceConfig);
+        if (genericService == null) {
+            cache.destroy(referenceConfig);
+            throw new DubboMethodException("Service is unavailable: " + declaringClass + "." + remoteMethod.getName());
+        }
+
+        return genericService;
     }
 
     private RegistryConfig getRegistry() {
@@ -206,17 +215,39 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         return config;
     }
 
-    private List<? extends MethodConfig> getMethodConfigList(Method remoteMethod) {
+    private List<? extends MethodConfig> getMethodConfigList(Method remoteMethod, DubboMethod methodAnno) {
         List<MethodConfig> mtdList = new ArrayList<>();
 
         MethodConfig cfg = new MethodConfig();
         mtdList.add(cfg);
 
         cfg.setName(remoteMethod.getName());
-        cfg.setTimeout(30000);
-        cfg.setRetries(0);
+        cfg.setTimeout(getMethodTimeout(methodAnno));
+        cfg.setRetries(getMethodRetries(methodAnno));
 
         return mtdList;
+    }
+
+    private Integer getMethodRetries(DubboMethod methodAnno) {
+        if (methodAnno == null) {
+            return DubboMethodConsts.DEFAULT_METHOD_RETRIES;
+        }
+        int retries = methodAnno.retries();
+        if (retries < -1) {
+            return DubboMethodConsts.DEFAULT_METHOD_RETRIES;
+        }
+        return retries;
+    }
+
+    private Integer getMethodTimeout(DubboMethod methodAnno) {
+        if (methodAnno == null) {
+            return DubboMethodConsts.DEFAULT_METHOD_TIMEOUT;
+        }
+        int timeout = methodAnno.timeout();
+        if (timeout < 0) {
+            return DubboMethodConsts.DEFAULT_METHOD_TIMEOUT;
+        }
+        return timeout;
     }
 
     private Object getBean(Class<?> remoteClass){

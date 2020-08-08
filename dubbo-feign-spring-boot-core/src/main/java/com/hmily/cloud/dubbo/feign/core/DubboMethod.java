@@ -42,4 +42,18 @@ public @interface DubboMethod {
      * @return
      */
     Class<?>[] remoteMethodParamsTypeClass() default {};
+
+    /**
+     * 方法超时参数，单位毫秒。
+     *
+     * @return
+     */
+    int timeout() default 5000;
+
+    /**
+     * 方法超时重试次数。
+     *
+     * @return
+     */
+    int retries() default -1;
 }
