@@ -31,6 +31,6 @@ limitations under the License.
     <!-- use dubbo protocol to export service on port 20880 -->
     <!--<dubbo:protocol name="dubbo" port="20880"/>-->
 
-    <dubbo:reference interface="com.hmily.cloud.dubbo.feign.samples.api.SamplesFacade" />
+    <dubbo:reference id="samplesFacade" interface="com.hmily.cloud.dubbo.feign.samples.api.SamplesFacade" />
 
 </beans>

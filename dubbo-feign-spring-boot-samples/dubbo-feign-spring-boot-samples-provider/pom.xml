@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.hmilyylimh.cloud</groupId>
             <artifactId>dubbo-feign-spring-boot-samples-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.0</version>
         </dependency>
 
         <dependency>

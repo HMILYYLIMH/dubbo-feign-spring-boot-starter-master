@@ -1,4 +1,4 @@
-package com.hmily.cloud.dubbo.feign.core;
+package com.hmily.cloud.dubbo.feign.core.util;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

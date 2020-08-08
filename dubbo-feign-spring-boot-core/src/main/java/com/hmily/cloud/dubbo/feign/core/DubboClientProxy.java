@@ -7,11 +7,16 @@ import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.alibaba.dubbo.config.utils.ReferenceConfigCache;
 import com.alibaba.dubbo.rpc.service.GenericService;
+import com.hmily.cloud.dubbo.feign.core.util.InvokeUtils;
+import com.hmily.cloud.dubbo.feign.core.util.JsonUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
 import java.lang.invoke.MethodHandles;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -66,8 +71,7 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         } else if (Collection.class.isAssignableFrom(returnType)) {
             return JsonUtils.parseArray(JsonUtils.toJSONString(resultObject), returnType);
         } else {
-            Map resultMap = (Map) resultObject;
-            return JsonUtils.parseObject(JsonUtils.toJSONString(resultMap), returnType);
+            return JsonUtils.parseObject(JsonUtils.toJSONString(resultObject), returnType);
         }
     }
 
@@ -155,28 +159,29 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
                 .unreflectSpecial(method, declaringClass).bindTo(proxy).invokeWithArguments(args);
     }
 
-    private Object doInvoke(Class<?> remoteClass, Method remoteMethod, Object[] args, DubboMethod methodAnno) throws InvocationTargetException, IllegalAccessException {
-        Object remoteBean = getBean(remoteClass);
+    private Object doInvoke(Class<?> remoteClass, Method remoteMethod, Object[] args, DubboMethod methodAnno) throws Throwable {
+        Object proxy = getBean(remoteClass);
 
         Class<?>[] parameterTypes = remoteMethod.getParameterTypes();
         String[] parameterTypeList = new String[parameterTypes.length];
         Object[] parameterValueList = new Object[parameterTypes.length];
         int idx = 0;
         for (Class<?> parameterType : parameterTypes) {
-            if(remoteBean == null){
+            if (proxy == null) {
                 parameterTypeList[idx] = parameterType.getName();
                 parameterValueList[idx] = JsonUtils.parseObject(JsonUtils.toJSONString(args[idx]), Map.class);
             } else {
-                parameterValueList[idx] = JsonUtils.parseObject(JsonUtils.toJSONString(args[idx]), remoteMethod.getParameterTypes()[idx]);
+                parameterValueList[idx] = JsonUtils.parseObject(JsonUtils.toJSONString(args[idx]),
+                        remoteMethod.getParameterTypes()[idx]);
             }
             idx++;
         }
 
-        if(remoteBean != null){
-            return remoteMethod.invoke(remoteBean, parameterValueList);
+        if (proxy != null) {
+            return InvokeUtils.invoke(proxy, remoteMethod, parameterValueList);
         }
 
-        // RPC 远程调用
+        // 泛化远程调用
         GenericService genericService = getGenericService(remoteMethod, methodAnno);
         return genericService.$invoke(remoteMethod.getName(), parameterTypeList, parameterValueList);
     }

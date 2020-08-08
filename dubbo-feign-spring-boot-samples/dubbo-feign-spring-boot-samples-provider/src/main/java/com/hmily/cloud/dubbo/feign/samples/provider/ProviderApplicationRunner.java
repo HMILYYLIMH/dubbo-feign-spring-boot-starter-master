@@ -15,7 +15,7 @@ import org.springframework.context.annotation.ImportResource;
  * ^_^
  * @date 2020-08-01
  */
-@ImportResource({"classpath*:META-INF/spring/dubbo-demo*.xml"})
+@ImportResource({"classpath*:dubbo/dubbo-demo*.xml"})
 @SpringBootApplication
 @EnableAspectJAutoProxy
 @EnableDubbo
