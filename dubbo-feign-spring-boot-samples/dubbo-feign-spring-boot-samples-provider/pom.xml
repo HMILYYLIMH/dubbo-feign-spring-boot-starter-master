@@ -13,7 +13,7 @@
     <groupId>com.hmilyylimh.cloud</groupId>
     <artifactId>dubbo-feign-spring-boot-samples-provider</artifactId>
     <name>dubbo-feign-spring-boot-samples-provider</name>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -69,7 +69,7 @@
         <dependency>
             <groupId>com.hmilyylimh.cloud</groupId>
             <artifactId>dubbo-feign-spring-boot-samples-api</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
