@@ -16,10 +16,27 @@
 
 
     <dependencies>
+
         <dependency>
             <groupId>com.hmilyylimh.cloud</groupId>
             <artifactId>dubbo-feign-spring-boot-samples-api</artifactId>
             <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.hmilyylimh.cloud</groupId>
+            <artifactId>dubbo-feign-spring-boot-starter</artifactId>
+            <version>1.0.0</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-autoconfigure</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-context</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -98,20 +115,5 @@
             </exclusions>
         </dependency>
 
-        <dependency>
-            <groupId>com.hmilyylimh.cloud</groupId>
-            <artifactId>dubbo-feign-spring-boot-starter</artifactId>
-            <version>1.0.0</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-autoconfigure</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.springframework</groupId>
-                    <artifactId>spring-context</artifactId>
-                </exclusion>
-            </exclusions>
-        </dependency>
     </dependencies>
 </project>

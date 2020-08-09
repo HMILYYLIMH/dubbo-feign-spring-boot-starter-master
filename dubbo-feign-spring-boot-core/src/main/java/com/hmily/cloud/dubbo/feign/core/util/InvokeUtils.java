@@ -5,6 +5,7 @@ import org.springframework.cglib.proxy.MethodProxy;
 import org.springframework.util.ReflectionUtils;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.util.regex.Pattern;
 
@@ -36,7 +37,7 @@ public class InvokeUtils {
         Object result = null;
         if (DubboUtils.isDubboProxy(proxy)) {
             handler = getHandler(proxy, proxy.getClass().getDeclaredField("handler"));
-            result = ((com.alibaba.dubbo.rpc.proxy.InvokerInvocationHandler) handler).invoke(proxy, remoteMethod, args);
+            result = ((InvocationHandler) handler).invoke(proxy, remoteMethod, args);
         } else if (AopUtils.isJdkDynamicProxy(proxy)) {
             handler = getHandler(proxy, proxy.getClass().getSuperclass().getDeclaredField("h"));
             result = ((java.lang.reflect.InvocationHandler) handler).invoke(proxy, remoteMethod, args);
