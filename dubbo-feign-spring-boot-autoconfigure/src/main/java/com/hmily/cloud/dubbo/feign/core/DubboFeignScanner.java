@@ -10,6 +10,7 @@ import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.annotation.AnnotationAttributes;
 import org.springframework.core.type.AnnotationMetadata;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -59,13 +60,17 @@ public class DubboFeignScanner extends ClassPathBeanDefinitionScanner {
     protected boolean isCandidateComponent(AnnotatedBeanDefinition beanDefinition) {
         AnnotationMetadata metadata = beanDefinition.getMetadata();
 
-        boolean found = metadata.isInterface() && metadata.isIndependent();
-        if (!found) {
+        if (!(metadata.isInterface() && metadata.isIndependent())) {
             return false;
         }
-
-        AnnotationAttributes annoAttrs =
-                AnnotationAttributes.fromMap(metadata.getAnnotationAttributes(DubboFeignClient.class.getName()));
+        Map<String, Object> attributes = metadata.getAnnotationAttributes(DubboFeignClient.class.getName());
+        if (attributes == null) {
+            return false;
+        }
+        AnnotationAttributes annoAttrs = AnnotationAttributes.fromMap(attributes);
+        if (annoAttrs == null) {
+            return false;
+        }
         Object remoteClass = annoAttrs.get("remoteClass");
         if (remoteClass == null) {
             return false;

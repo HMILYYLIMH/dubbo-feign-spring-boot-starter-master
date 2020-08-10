@@ -1,4 +1,4 @@
-package com.hmily.cloud.dubbo.feign.core;
+package com.hmily.cloud.dubbo.feign.core.excp;
 
 /**
  * <h1>Dubbo方法运行时异常。</h1>

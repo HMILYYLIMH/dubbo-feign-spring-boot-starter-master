@@ -7,8 +7,10 @@ import com.alibaba.dubbo.config.ReferenceConfig;
 import com.alibaba.dubbo.config.RegistryConfig;
 import com.alibaba.dubbo.config.utils.ReferenceConfigCache;
 import com.alibaba.dubbo.rpc.service.GenericService;
+import com.hmily.cloud.dubbo.feign.core.excp.DubboResultJudgeException;
 import com.hmily.cloud.dubbo.feign.core.util.InvokeUtils;
 import com.hmily.cloud.dubbo.feign.core.util.JsonUtils;
+import com.hmily.cloud.dubbo.feign.core.util.SeachNodeUtils;
 import org.springframework.context.ApplicationContext;
 
 import java.io.Serializable;
@@ -17,11 +19,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.*;
 
 /**
  * <h1>DubboClient 代理类。</h1>
@@ -35,12 +33,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DubboClientProxy<T> implements InvocationHandler, Serializable {
 
     private ApplicationContext appCtx;
-    private static final Map<String, Method> METHOD_CACHE = new ConcurrentHashMap<>();
-    private ClassLoader classLoader;
 
     public DubboClientProxy(ApplicationContext appCtx) {
         this.appCtx = appCtx;
-        this.classLoader = appCtx.getClassLoader();
     }
 
     @Override
@@ -61,18 +56,53 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         String mtdName = getMethodName(method.getName(), methodAnno);
 
         // 缓存方法
-        Method remoteMethod = cachedMethod(remoteClass, mtdName, methodAnno);
+        Method remoteMethod = MethodCache.cachedMethod(remoteClass, mtdName, methodAnno);
         Class<?> returnType = method.getReturnType();
 
         // 发起真正远程调用
         Object resultObject = doInvoke(remoteClass, remoteMethod, args, methodAnno);
+
+        // 解析返回结果
+        return doParse(dubboClientAnno, returnType, resultObject);
+    }
+
+    private Object doParse(DubboFeignClient dubboClientAnno, Class<?> returnType, Object resultObject) {
         if (CharSequence.class.isAssignableFrom(returnType)) {
             return (String) resultObject;
         } else if (Collection.class.isAssignableFrom(returnType)) {
             return JsonUtils.parseArray(JsonUtils.toJSONString(resultObject), returnType);
         } else {
+            // 这里处理的是Map对象
+            if (containsResultJudge(dubboClientAnno)) {
+                List<String> remoteCodeSuccValueList = getRemoteCodeSuccValue(dubboClientAnno);
+                String remoteCodeNode = getRemoteCodeNode(dubboClientAnno);
+                String remoteMsgNode = getRemoteMsgNode(dubboClientAnno);
+                Object remodeCodeObject = SeachNodeUtils.getValue(remoteCodeNode, (Map) resultObject);
+                String remodeCodeVal = remodeCodeObject == null ? null : String.valueOf(remodeCodeObject);
+                String remodeMsgVal = (String) SeachNodeUtils.getValue(remoteMsgNode, (Map) resultObject);
+                if (!remoteCodeSuccValueList.contains(remodeCodeVal)) {
+                    throw new DubboResultJudgeException(remodeCodeVal, remodeMsgVal);
+                }
+            }
+
             return JsonUtils.parseObject(JsonUtils.toJSONString(resultObject), returnType);
         }
+    }
+
+    private boolean containsResultJudge(DubboFeignClient dubboClientAnno) {
+        return dubboClientAnno.needResultJudge();
+    }
+
+    private String getRemoteCodeNode(DubboFeignClient dubboClientAnno) {
+        return dubboClientAnno.resultJudge().remoteCodeNode();
+    }
+
+    private String getRemoteMsgNode(DubboFeignClient dubboClientAnno) {
+        return dubboClientAnno.resultJudge().remoteMsgNode();
+    }
+
+    private List<String> getRemoteCodeSuccValue(DubboFeignClient dubboClientAnno) {
+        return Arrays.asList(dubboClientAnno.resultJudge().remoteCodeSuccValueList());
     }
 
     private String getMethodName(String mtdName, DubboMethod methodAnno) {
@@ -86,57 +116,6 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         }
 
         return remoteMethodName;
-    }
-
-    private Method cachedMethod(Class<?> remoteClass, String mtdName, DubboMethod methodAnno) throws NoSuchMethodException, ClassNotFoundException {
-        String key = String.join("_", remoteClass.getName(), mtdName);
-        if(methodAnno == null){
-            return METHOD_CACHE.computeIfAbsent(key, k -> findMethodByName(mtdName, remoteClass.getDeclaredMethods()));
-        }
-
-        String[] remoteMethodParamsTypeName = methodAnno.remoteMethodParamsTypeName();
-        Class<?>[] remoteMethodParamsTypeClass = methodAnno.remoteMethodParamsTypeClass();
-        int nameLength = remoteMethodParamsTypeName.length;
-        int classLength = remoteMethodParamsTypeClass.length;
-        if (nameLength == 0) {
-            if (classLength == 0) {
-                return METHOD_CACHE.computeIfAbsent(key, k -> findMethodByName(mtdName, remoteClass.getDeclaredMethods()));
-            }
-
-            Method method = METHOD_CACHE.get(key);
-            if (method != null) {
-                return method;
-            }
-            Method foundMethod = remoteClass.getDeclaredMethod(mtdName, remoteMethodParamsTypeClass);
-            return METHOD_CACHE.computeIfAbsent(key, k -> foundMethod);
-        } else {
-            if (classLength == 0) {
-                Method method = METHOD_CACHE.get(key);
-                if (method != null) {
-                    return method;
-                }
-
-                Class<?>[] classes = new Class<?>[nameLength];
-                int idx = 0;
-                for (String name : remoteMethodParamsTypeName) {
-                    classes[idx++] = classLoader.loadClass(name);
-                }
-                Method foundMethod = remoteClass.getDeclaredMethod(mtdName, classes);
-                return METHOD_CACHE.computeIfAbsent(key, k -> foundMethod);
-            }
-
-            throw new DubboMethodException("One must be choosed in 'remoteMethodParamsTypeName' and " +
-                    "'remoteMethodParamsTypeClass'.");
-        }
-    }
-
-    private Method findMethodByName(String mtdName, Method[] remoteDeclaredMethods) {
-        for (Method remoteMethod : remoteDeclaredMethods) {
-            if(mtdName.equals(remoteMethod.getName())){
-                return remoteMethod;
-            }
-        }
-        return null;
     }
 
     private boolean isDefaultMethod(Method method) {
@@ -202,7 +181,7 @@ public class DubboClientProxy<T> implements InvocationHandler, Serializable {
         GenericService genericService = cache.get(referenceConfig);
         if (genericService == null) {
             cache.destroy(referenceConfig);
-            throw new DubboMethodException("Service is unavailable: " + declaringClass + "." + remoteMethod.getName());
+            throw new DubboResultJudgeException("Service is unavailable: " + declaringClass + "." + remoteMethod.getName());
         }
 
         return genericService;
